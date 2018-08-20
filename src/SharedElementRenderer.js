@@ -64,13 +64,13 @@ class SharedElementRenderer extends PureComponent {
 
     const animations = [];
 
-    if (source.position.pageY !== destination.position.pageY) {
-      const translateYValue = new Animated.Value(source.position.pageY);
+    if ((source.position.pageY - source.position.y) !== (destination.position.pageY - destination.position.y)) {
+      const translateYValue = new Animated.Value(source.position.pageY - source.position.y);
       this.setState({ translateYValue });
 
       animations.push(
         Animated.timing(translateYValue, {
-          toValue: destination.position.pageY,
+          toValue: destination.position.pageY - destination.position.y,
           useNativeDriver: true,
           ...animationConfig,
         })
