@@ -28,6 +28,7 @@ class SharedElementRenderer extends PureComponent {
     this.isRunning = {};
     this.state = {
       config: null,
+      translateYValue: 0
     };
   }
   onMoveWillStart = () => {
