@@ -15,7 +15,8 @@ class SharedElementRenderer extends PureComponent {
     this.isRunning = {};
     this.state = {
       config: null,
-      translateYValue: 0
+      translateYValue: 0,
+      offsetY: 0
     };
   }
   getChildContext() {
@@ -59,15 +60,22 @@ class SharedElementRenderer extends PureComponent {
     let translateYValue = 0;
 
     if (!Number.isNaN(source.position.pageY)) {
-      translateYValue = new Animated.Value(source.position.pageY);
+      translateYValue = new Animated.Value(source.position.pageY - (this.state.offsetY || 0));
     }
 
     if (source.position.pageY !== destination.position.pageY) {
       this.setState({ translateYValue });
 
+      // animations.push(
+      //   Animated.timing(translateYValue, {
+      //     toValue: destination.position.pageY - this.state.offsetY,
+      //     useNativeDriver: true,
+      //     ...animationConfig,
+      //   }),
+      // );
       animations.push(
         Animated.timing(translateYValue, {
-          toValue: destination.position.pageY - this.state.offsetY,
+          toValue: destination.position.pageY - (this.state.offsetY || 0),
           useNativeDriver: true,
           ...animationConfig,
         }),
@@ -140,7 +148,10 @@ class SharedElementRenderer extends PureComponent {
     // {this.props.children}
     // </View>
     return (
-      <View style={styles.flexContainer}>
+      <View
+        ref="mainContainer"
+        style={styles.flexContainer}
+        onLayout={e => this.onLayout(e)}>
         {children}
         {this.renderSharedElement()}
       </View>
