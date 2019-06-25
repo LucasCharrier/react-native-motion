@@ -3,12 +3,14 @@ import { Animated, InteractionManager } from 'react-native';
 import PropTypes from 'prop-types';
 
 const propTypes = {
-  type: PropTypes.string,
+  type: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
   opacityMin: PropTypes.number,
   scaleMin: PropTypes.number,
-  duration: PropTypes.number,
+  duration: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
   animateOnDidMount: PropTypes.bool,
-  delay: PropTypes.number,
+  isHidden: PropTypes.bool,
+  delay: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
+  useNativeDriver: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
 };
 const defaultProps = {
   type: 'timing',
@@ -16,6 +18,9 @@ const defaultProps = {
   scaleMin: 0.8,
   duration: 500,
   animateOnDidMount: false,
+  isHidden: true,
+  delay: 0,
+  useNativeDriver: false,
 };
 
 class ScaleAndOpacity extends PureComponent {
@@ -30,17 +35,21 @@ class ScaleAndOpacity extends PureComponent {
     };
   }
   componentDidMount() {
-    if (this.props.animateOnDidMount) {
+    const { animateOnDidMount } = this.props;
+
+    if (animateOnDidMount) {
       InteractionManager.runAfterInteractions().then(() => {
         this.show(this.props);
       });
     }
   }
   componentWillReceiveProps(nextProps) {
-    if (!this.props.isHidden && nextProps.isHidden) {
+    const { isHidden } = this.props;
+
+    if (!isHidden && nextProps.isHidden) {
       this.hide(nextProps);
     }
-    if (this.props.isHidden && !nextProps.isHidden) {
+    if (isHidden && !nextProps.isHidden) {
       this.show(nextProps);
     }
   }

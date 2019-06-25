@@ -5,14 +5,18 @@ import PropTypes from 'prop-types';
 const propTypes = {
   opacityMin: PropTypes.number,
   translateYMin: PropTypes.number,
-  duration: PropTypes.number,
-  startOnDidMount: PropTypes.bool,
+  duration: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
+  animateOnDidMount: PropTypes.bool,
+  delay: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
+  useNativeDriver: PropTypes.bool, // eslint-disable-line react/no-unused-prop-types
 };
 const defaultProps = {
   opacityMin: 0,
   translateYMin: -4,
   duration: 500,
-  startOnDidMount: false,
+  animateOnDidMount: false,
+  delay: 0,
+  useNativeDriver: false,
 };
 
 class TranslateYAndOpacity extends PureComponent {
@@ -27,38 +31,36 @@ class TranslateYAndOpacity extends PureComponent {
     };
   }
   componentDidMount() {
-    const { startOnDidMount } = this.props;
+    const { animateOnDidMount } = this.props;
 
-    if (startOnDidMount) {
+    if (animateOnDidMount) {
       InteractionManager.runAfterInteractions().then(() => {
         this.show(this.props);
       });
     }
   }
   componentWillReceiveProps(nextProps) {
-    if (!this.props.isHidden && nextProps.isHidden) {
+    const { isHidden } = this.props;
+
+    if (!isHidden && nextProps.isHidden) {
       this.hide(nextProps);
     }
-    if (this.props.isHidden && !nextProps.isHidden) {
+    if (isHidden && !nextProps.isHidden) {
       this.show(nextProps);
     }
   }
   show(props) {
     const { opacityValue, translateYValue } = this.state;
-    const { duration, delay, onShowDidFinish } = props;
+    const { onShowDidFinish, ...rest } = props;
 
     Animated.parallel([
       Animated.timing(opacityValue, {
         toValue: 1,
-        useNativeDriver: true,
-        duration: 500,
-        delay,
+        ...rest,
       }),
       Animated.timing(translateYValue, {
         toValue: 0,
-        useNativeDriver: true,
-        duration: 500,
-        delay,
+        ...rest,
       }),
     ]).start(() => {
       if (onShowDidFinish) {
@@ -68,26 +70,16 @@ class TranslateYAndOpacity extends PureComponent {
   }
   hide(props) {
     const { translateYValue, opacityValue } = this.state;
-    const {
-      duration,
-      delay,
-      opacityMin,
-      translateYMin,
-      onHideDidFinish,
-    } = props;
+    const { opacityMin, translateYMin, onHideDidFinish, ...rest } = props;
 
     Animated.parallel([
       Animated.timing(opacityValue, {
         toValue: opacityMin,
-        useNativeDriver: true,
-        duration,
-        delay,
+        ...rest,
       }),
       Animated.timing(translateYValue, {
         toValue: translateYMin,
-        useNativeDriver: true,
-        duration,
-        delay,
+        ...rest,
       }),
     ]).start(() => {
       if (onHideDidFinish) {
@@ -96,6 +88,7 @@ class TranslateYAndOpacity extends PureComponent {
     });
   }
   render() {
+    const { children } = this.props;
     const { opacityValue, translateYValue } = this.state;
 
     const animatedStyle = {
@@ -103,9 +96,7 @@ class TranslateYAndOpacity extends PureComponent {
       transform: [{ translateY: translateYValue }],
     };
 
-    return (
-      <Animated.View style={animatedStyle}>{this.props.children}</Animated.View>
-    );
+    return <Animated.View style={animatedStyle}>{children}</Animated.View>;
   }
 }
 

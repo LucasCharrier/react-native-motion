@@ -1,12 +1,5 @@
 import React, { PureComponent } from 'react';
-import {
-  Easing,
-  Animated,
-  Text,
-  View,
-  FlatList,
-  StyleSheet,
-} from 'react-native';
+import { Animated, View, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 
 const childContextTypes = {
@@ -16,12 +9,6 @@ const childContextTypes = {
 // We need shared element to be rendered after the whole application because it
 // be on the screen with position absolute and will cover everything on screen
 class SharedElementRenderer extends PureComponent {
-  getChildContext() {
-    return {
-      moveSharedElement: this.moveSharedElement,
-    };
-  }
-
   constructor(props) {
     super(props);
 
@@ -29,6 +16,11 @@ class SharedElementRenderer extends PureComponent {
     this.state = {
       config: null,
       translateYValue: 0
+    };
+  }
+  getChildContext() {
+    return {
+      moveSharedElement: this.moveSharedElement,
     };
   }
   onMoveWillStart = () => {
@@ -64,9 +56,13 @@ class SharedElementRenderer extends PureComponent {
     const { source, destination } = element;
 
     const animations = [];
+    let translateYValue = 0;
+
+    if (!Number.isNaN(source.position.pageY)) {
+      translateYValue = new Animated.Value(source.position.pageY);
+    }
 
     if (source.position.pageY !== destination.position.pageY) {
-      const translateYValue = new Animated.Value(source.position.pageY - this.state.offsetY);
       this.setState({ translateYValue });
 
       animations.push(
@@ -74,7 +70,7 @@ class SharedElementRenderer extends PureComponent {
           toValue: destination.position.pageY - this.state.offsetY,
           useNativeDriver: true,
           ...animationConfig,
-        })
+        }),
       );
     }
 
@@ -137,11 +133,15 @@ class SharedElementRenderer extends PureComponent {
     );
   }
   render() {
+    const { children } = this.props;
+    // <View style={styles.flexContainer}
+    // onLayout={e => this.onLayout(e)}
+    // ref="mainContainer">
+    // {this.props.children}
+    // </View>
     return (
-      <View style={styles.flexContainer}
-        onLayout={e => this.onLayout(e)}
-        ref="mainContainer">
-        {this.props.children}
+      <View style={styles.flexContainer}>
+        {children}
         {this.renderSharedElement()}
       </View>
     );
