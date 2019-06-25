@@ -104,8 +104,8 @@ class SharedElementRenderer extends PureComponent {
   };
 
   onLayout(e) {
-    this.refs.mainContainer.measure((x, y, width, height, pageX, pageY) => {
-      this.setState({ offsetY: pageY });
+    this.refs.mainContainer.measure((a, b, width, height, px, py) => {
+      this.setState({ offsetY: py || 128 });
     })
   }
 
